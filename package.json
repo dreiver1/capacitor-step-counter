@@ -1,7 +1,7 @@
 {
-  "name": "step-counter",
+  "name": "@dreiver1/capacitor-step-counter",
   "version": "0.0.1",
-  "description": "A Capacitor plugin that provides access to the device step counter sensor on Androi, with a web fallback.",
+  "description": "A Capacitor plugin that provides access to the device step counter sensor on Android and iOS, with a web fallback.",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -13,7 +13,9 @@
     "ios/Sources",
     "ios/Tests",
     "Package.swift",
-    "StepCounter.podspec"
+    "StepCounter.podspec",
+    "README.md",
+    "LICENSE"
   ],
   "author": "David Nascimento",
   "license": "MIT",
@@ -26,8 +28,12 @@
   },
   "keywords": [
     "capacitor",
-    "plugin",
-    "native"
+    "capacitor-plugin",
+    "step-counter",
+    "pedometer",
+    "fitness",
+    "android",
+    "ios"
   ],
   "scripts": {
     "verify": "npm run verify:ios && npm run verify:android && npm run verify:web",
@@ -76,5 +82,8 @@
     "android": {
       "src": "android"
     }
+  },
+  "dependencies": {
+    "step-counter": "github:dreiver1/capacitor-step-counter"
   }
 }

@@ -22,7 +22,8 @@ import com.getcapacitor.annotation.Permission;
     )
   }
 )
-public class StepCounterPlugin extends Plugin implements SensorEventListener {
+public class StepCounterPlugin extends Plugin
+  implements SensorEventListener {
 
   private SensorManager sensorManager;
   private Sensor stepSensor;
@@ -30,16 +31,17 @@ public class StepCounterPlugin extends Plugin implements SensorEventListener {
 
   @Override
   public void load() {
-    sensorManager = (SensorManager)
-      getContext().getSystemService(Context.SENSOR_SERVICE);
-    stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+    sensorManager =
+      (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
+    stepSensor =
+      sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
   }
 
   @PluginMethod
   public void start(PluginCall call) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-        !getPermissionState("activityRecognition").equals(PermissionState.GRANTED)) {
-      requestPermissionForAlias("activityRecognition", call, "permissionCallback");
+
+    if (getPermissionState("activityRecognition") != PermissionState.GRANTED) {
+      requestPermissionForAlias("activityRecognition", call);
       return;
     }
 
@@ -70,18 +72,12 @@ public class StepCounterPlugin extends Plugin implements SensorEventListener {
     call.resolve(ret);
   }
 
-  @PermissionCallback
-  private void permissionCallback(PluginCall call) {
-    start(call);
-  }
-
   @Override
   public void onSensorChanged(SensorEvent event) {
     currentSteps = event.values[0];
 
     JSObject data = new JSObject();
     data.put("steps", currentSteps);
-
     notifyListeners("step", data);
   }
 
