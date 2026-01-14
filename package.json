@@ -1,6 +1,6 @@
 {
   "name": "@dreiver1/capacitor-step-counter",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A Capacitor plugin that provides access to the device step counter sensor on Android and iOS, with a web fallback.",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
