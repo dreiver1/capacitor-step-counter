@@ -7,11 +7,11 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 
-import androidx.core.app.ActivityCompat;
-
 import com.getcapacitor.*;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
+import com.getcapacitor.annotation.PermissionCallback;
+
 
 @CapacitorPlugin(
   name = "StepCounter",
@@ -22,8 +22,7 @@ import com.getcapacitor.annotation.Permission;
     )
   }
 )
-public class StepCounterPlugin extends Plugin
-  implements SensorEventListener {
+public class StepCounterPlugin extends Plugin implements SensorEventListener {
 
   private SensorManager sensorManager;
   private Sensor stepSensor;
@@ -31,17 +30,26 @@ public class StepCounterPlugin extends Plugin
 
   @Override
   public void load() {
-    sensorManager =
-      (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-    stepSensor =
-      sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+    sensorManager = (SensorManager)
+      getContext().getSystemService(Context.SENSOR_SERVICE);
+    stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+  }
+
+  @PermissionCallback
+  private void permissionCallback(PluginCall call) {
+
+    if (getPermissionState("activityRecognition") == PermissionState.GRANTED) {
+      startSensor(call);
+    } else {
+      call.reject("ACTIVITY_RECOGNITION permission denied");
+    }
   }
 
   @PluginMethod
   public void start(PluginCall call) {
-
-    if (getPermissionState("activityRecognition") != PermissionState.GRANTED) {
-      requestPermissionForAlias("activityRecognition", call);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+      !getPermissionState("activityRecognition").equals(PermissionState.GRANTED)) {
+      requestPermissionForAlias("activityRecognition", call, "permissionCallback");
       return;
     }
 
@@ -58,6 +66,23 @@ public class StepCounterPlugin extends Plugin
 
     call.resolve();
   }
+
+  private void startSensor(PluginCall call) {
+
+    if (stepSensor == null) {
+      call.reject("Step Counter sensor not available");
+      return;
+    }
+
+    sensorManager.registerListener(
+      this,
+      stepSensor,
+      SensorManager.SENSOR_DELAY_NORMAL
+    );
+
+    call.resolve();
+  }
+
 
   @PluginMethod
   public void stop(PluginCall call) {
@@ -78,6 +103,7 @@ public class StepCounterPlugin extends Plugin
 
     JSObject data = new JSObject();
     data.put("steps", currentSteps);
+
     notifyListeners("step", data);
   }
 
